@@ -8,7 +8,8 @@ Each book gets its own pad (keyed by a stable book id, so it survives renames), 
 
 - **Per-book notes** — every book gets its own scratchpad, keyed by the book's partial MD5 (survives file renames/moves).
 - **Global pad** — one shared pad across all books.
-- **Full-screen editor** with Save / Reset / Close, save-on-close, and pannable scrolling.
+- **Sections** — organise a note with headings (e.g. `# Characters`, `# Important parts`) and jump straight to any section's text.
+- **Full-screen editor** with Save / Reset / Close, save-on-close, pannable scrolling, and remembered scroll position.
 - **Bindable** — both actions can be assigned to gestures or profiles.
 - **Plain text storage** — notes live in `koreader/scratchpads/*.txt`.
 
@@ -41,6 +42,21 @@ Or bind either action to a gesture:
 
 Edit the note, then use the nav bar to **Save** (also saves on close) or **Reset** to the last saved content.
 
+### Sections
+
+Any line that starts with `#` is treated as a section heading:
+
+```
+# Characters
+Alice — the narrator
+Bob — her brother
+
+# Important parts
+p.142 the twist about the lighthouse
+```
+
+Then **Scratchpad -> Sections — this book / global** lists every heading; tap one to view that section's text (with an **Edit note** button), or **New section…** to append a fresh heading and start writing.
+
 ## Storage
 
 | File | Contents |
@@ -57,5 +73,3 @@ Edit the note, then use the nav bar to **Save** (also saves on close) or **Reset
 ## License
 
 Released into the public domain under [The Unlicense](https://unlicense.org). See [LICENSE](LICENSE).
-
-Personal project. No warranty.

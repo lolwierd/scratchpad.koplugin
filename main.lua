@@ -17,6 +17,9 @@
 local DataStorage     = require("datastorage")
 local Dispatcher      = require("dispatcher")
 local InputDialog     = require("ui/widget/inputdialog")
+local Menu            = require("ui/widget/menu")
+local Notification    = require("ui/widget/notification")
+local Screen          = require("device").screen
 local TextViewer      = require("ui/widget/textviewer")
 local UIManager       = require("ui/uimanager")
 local WidgetContainer = require("ui/widget/container/widgetcontainer")
@@ -126,15 +129,17 @@ end
 -- ---------------------------------------------------------------------------
 -- Sections  (a "heading" line starts with one or more '#', e.g. "# Characters")
 -- ---------------------------------------------------------------------------
-function Scratchpad:_sections(global)
+
+-- Parse section headings out of arbitrary text. Each section carries its
+-- title, the raw heading line (used to locate it for navigation), and body.
+local function parse_sections(text)
     local sections = {}
-    local text = self:_read(global)
-    if text == "" then return sections end
+    if not text or text == "" then return sections end
     local cur
     for line in (text .. "\n"):gmatch("(.-)\n") do
         local title = line:match("^%s*#+%s+(.-)%s*$")
         if title then
-            cur = { title = title, lines = {} }
+            cur = { title = title, heading = line, lines = {} }
             sections[#sections + 1] = cur
         elseif cur then
             cur.lines[#cur.lines + 1] = line
@@ -144,6 +149,10 @@ function Scratchpad:_sections(global)
         s.body = (table.concat(s.lines, "\n"):gsub("^%s+", ""):gsub("%s+$", ""))
     end
     return sections
+end
+
+function Scratchpad:_sections(global)
+    return parse_sections(self:_read(global))
 end
 
 function Scratchpad:_sectionsMenu(global)
@@ -209,6 +218,44 @@ function Scratchpad:_newSection(global, touchmenu_instance)
     dialog:onShowKeyboard()
 end
 
+-- From inside the open editor: list the headings in the *current* (possibly
+-- unsaved) text and jump the cursor to the chosen one.
+function Scratchpad:_navToSections()
+    local id = self.input
+    if not id then return end
+    local text = id:getInputText() or ""
+    local sections = parse_sections(text)
+    if #sections == 0 then
+        UIManager:show(Notification:new{ text = _("No sections. Start a line with #") })
+        return
+    end
+    -- Resolve each heading to a char position (progressive search so duplicate
+    -- heading text still maps to the right occurrence, in document order).
+    local search_from = 1
+    local items = {}
+    for _i, s in ipairs(sections) do
+        local cp = util.stringSearch(text, s.heading, true, search_from)
+        if cp and cp > 0 then search_from = cp + 1 end
+        items[#items + 1] = {
+            text = s.title,
+            callback = function()
+                if cp and cp > 0 and id._input_widget then
+                    id._input_widget:moveCursorToCharPos(cp)
+                end
+            end,
+        }
+    end
+    local menu
+    menu = Menu:new{
+        title = _("Sections"),
+        item_table = items,
+        width = Screen:getWidth(),
+        height = Screen:getHeight(),
+        close_callback = function() UIManager:close(menu) end,
+    }
+    UIManager:show(menu)
+end
+
 -- ---------------------------------------------------------------------------
 -- The editor
 -- ---------------------------------------------------------------------------
@@ -229,6 +276,13 @@ function Scratchpad:openScratchpad(global, opts)
         scroll_by_pan     = true,
         keyboard_visible  = true,
         auto_para_direction = true,
+        -- A "Sections" button in the bar (Reset/Save/Close get appended to this
+        -- same first row by InputDialog).
+        buttons = {
+            {
+                { text = _("Sections"), callback = function() self:_navToSections() end },
+            },
+        },
         -- Remember scroll/cursor position across the re-inits that happen while
         -- typing or toggling the keyboard, so the view stays put.
         view_pos_callback = (not opts.at_end) and function(top_line_num, charpos)

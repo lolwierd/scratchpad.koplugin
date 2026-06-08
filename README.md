@@ -55,7 +55,10 @@ Bob — her brother
 p.142 the twist about the lighthouse
 ```
 
-Then **Scratchpad -> Sections — this book / global** lists every heading; tap one to view that section's text (with an **Edit note** button), or **New section…** to append a fresh heading and start writing.
+Two ways to navigate:
+
+- **From the menu** — **Scratchpad -> Sections — this book / global** lists every heading; tap one to view that section's text (with an **Edit note** button), or **New section…** to append a fresh heading and start writing.
+- **From inside the editor** — tap the **Sections** button in the editor's button bar to get a scrollable list of headings and jump the cursor straight to one (this reads the live, unsaved text).
 
 ## Storage
 

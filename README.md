@@ -54,4 +54,8 @@ Edit the note, then use the nav bar to **Save** (also saves on close) or **Reset
 
 - Reader-only (`is_doc_only`) — a scratchpad is for notes while reading; it doesn't appear in the File Manager menu.
 
+## License
+
+Released into the public domain under [The Unlicense](https://unlicense.org). See [LICENSE](LICENSE).
+
 Personal project. No warranty.

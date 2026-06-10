@@ -276,13 +276,6 @@ function Scratchpad:openScratchpad(global, opts)
         scroll_by_pan     = true,
         keyboard_visible  = true,
         auto_para_direction = true,
-        -- A "Sections" button in the bar (Reset/Save/Close get appended to this
-        -- same first row by InputDialog).
-        buttons = {
-            {
-                { text = _("Sections"), callback = function() self:_navToSections() end },
-            },
-        },
         -- Remember scroll/cursor position across the re-inits that happen while
         -- typing or toggling the keyboard, so the view stays put.
         view_pos_callback = (not opts.at_end) and function(top_line_num, charpos)
